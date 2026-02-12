@@ -73,13 +73,15 @@ func (m *Manager) initChannels() error {
 
 	if m.config.Channels.Feishu.Enabled {
 		logger.DebugC("channels", "Attempting to initialize Feishu channel")
-		feishu, err := NewFeishuChannel(m.config.Channels.Feishu, m.bus)
+		// 旧: feishu, err := NewFeishuChannel(...); m.channels["feishu"] = feishu
+		// 改用 ch 以适配 NewFeishuChannel 返回 (Channel, error) 的接口
+		ch, err := NewFeishuChannel(m.config.Channels.Feishu, m.bus)
 		if err != nil {
 			logger.ErrorCF("channels", "Failed to initialize Feishu channel", map[string]interface{}{
 				"error": err.Error(),
 			})
 		} else {
-			m.channels["feishu"] = feishu
+			m.channels["feishu"] = ch
 			logger.InfoC("channels", "Feishu channel enabled successfully")
 		}
 	}

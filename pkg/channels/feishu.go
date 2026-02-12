@@ -1,3 +1,7 @@
+// 飞书通道实现。通过 build tag 可选编译，规避 larksuite/oapi-sdk-go 的 math.MaxInt64 溢出问题。
+// 旧实现：无 build tag，始终编译，导致依赖的 larksuite drive/v1 在部分环境编译失败。
+//go:build feishu
+
 package channels
 
 import (
@@ -28,7 +32,10 @@ type FeishuChannel struct {
 	cancel context.CancelFunc
 }
 
-func NewFeishuChannel(cfg config.FeishuConfig, bus *bus.MessageBus) (*FeishuChannel, error) {
+// NewFeishuChannel 创建飞书通道。
+// 旧签名: func NewFeishuChannel(cfg config.FeishuConfig, bus *bus.MessageBus) (*FeishuChannel, error)
+// 改为 (Channel, error) 以便 feishu_stub.go 在未编译飞书时返回 nil 占位。
+func NewFeishuChannel(cfg config.FeishuConfig, bus *bus.MessageBus) (Channel, error) {
 	base := NewBaseChannel("feishu", cfg, bus, cfg.AllowFrom)
 
 	return &FeishuChannel{
